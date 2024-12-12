@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth Environmental Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            padding: 20px;
+            transition: background-color 0.5s ease;
+        }
+
+        nav {
+            background-color: #4682b4;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            display: none; /* Hidden initially */
+            transition: transform 0.5s ease-in-out;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        nav ul li {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 1.2em;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: #e0f7fa;
+        }
+
+        #profile-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 30px;
+            background-color: #4682b4;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            z-index: 1;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #profile-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 8px;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        #profile-menu a:hover {
+            background-color: #5a9bd4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-out;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #005f5f;
+            letter-spacing: 1px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .auth-form {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4682b4;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .auth-form input:focus {
+            border-color: #4682b4;
+        }
+
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4682b4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .auth-form button:hover {
+            background-color: #5a9bd4;
+        }
+
+        .auth-form .switch {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .auth-form .switch a {
+            color: #4682b4;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .auth-form .switch a:hover {
+            color: #5a9bd4;
+            text-decoration: underline;
+        }
+
+        #dashboard-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: space-between;
+            animation: fadeInUp 1s ease-out;
+        }
+.help-btn {
+    font-size: 20px;
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+margin: 10px;
+position: relative;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .card h2 {
+            margin-bottom: 10px;
+            color: #4682b4;
+        }
+
+        .card p {
+            color: #777;
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+
+        #map {
+            height: 300px;
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .auth-form {
+                width: 90%;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li {
+                padding: 8px 12px;
+            }
+
+            #dashboard-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .card {
+                width: 100%;
+                max-width: 350px;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .auth-form input {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+
+            .auth-form button {
+                font-size: 1em;
+            }
+
+            .profile-container {
+                padding: 15px;
+            }
+
+            .card p {
+                font-size: 1em;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav id="navbar">
+        <ul>
+            <li><a href="#weather">Weather</a></li>
+            <li><a href="#air-quality">Air Quality</a></li>
+            <li><a href="#map">Map</a></li>
+            <li><a href="#" onclick="toggleProfileMenu()">Profile</a></li>
+        </ul>
+    </nav>
+
+    <!-- Profile/Logout Menu -->
+    <div id="profile-menu">
+        <a href="#" onclick="viewProfile()">View Profile</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </div>
+
+    <!-- Login/Register Form -->
+    <div class="container" id="auth-container">
+        <div class="auth-container">
+            <div class="auth-form" id="login-form">
+                <h2>Login</h2>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button onclick="login()">Login</button>
+                <div class="switch">
+                    <a href="#" onclick="showRegister()">Don't have an account? Register here</a>
+                </div>
+            </div>
+            <div class="auth-form" id="register-form" style="display: none;">
+                <h2>Register</h2>
+                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="password" id="register-password" placeholder="Password" required>
+                <input type="password" id="register-confirm-password" placeholder="Confirm Password" required>
+                <button onclick="register()">Register</button>
+                <div class="switch">
+                    <a href="#" onclick="showLogin()">Already have an account? Login here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard (hidden initially) -->
+    <div class="container" id="dashboard-container" style="display: none;">
+        <header>
+            <h1>Earth Environmental Dashboard</h1>
+        </header>
+
+        <div>
+            <input type="text" id="location-input" placeholder="Enter location" style="padding: 10px; font-size: 1em; margin-bottom: 20px; width: 100%; max-width: 400px;">
+            <button onclick="searchLocation()" style="padding: 10px 15px; background-color: #4682b4; color: white; border: none; border-radius: 8px; font-size: 1em;">Search</button>
+        </div>
+
+        <div id="dashboard-container">
+<div class="card">
+                <button class="help-btn" onclick="showHelp('weather')">?</button>
+                <div class="icon">☁️</div>
+                <h2>Weather Forecast</h2>
+                <p id="weather-info">Please enter a location to see weather information.</p>
+            </div>
+
+<div class="card">
+                <button class="help-btn" onclick="showHelp('airQuality')">?</button>
+                <div class="icon">🌬️</div>
+                <h2>Air Quality Monitoring</h2>
+                <p id="air-quality-info">Please enter a location to see air quality information.</p>
+            </div>
+
+            <div class="card" id="map">
+                <!-- Leaflet Map will be injected here -->
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Made by <a href="https://www.facebook.com/profile.php?id=61569198136653" target="_blank">Jhames Martin</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const apiKey = '94bb70c91192a11e66cb2149f21b4ee2';  
+        let lat = 14.5995;  
+        let lon = 120.9842;
+
+        // Initialize Leaflet map
+        const map = L.map('map').setView([lat, lon], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        }
+
+        function showLogin() {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        }
+
+        function register() {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+
+            if (password === confirmPassword) {
+                const userData = { email: email, password: password };
+                localStorage.setItem('user', JSON.stringify(userData)); 
+                alert('Registration successful!');
+                showLogin();
+            } else {
+                alert('Passwords do not match!');
+            }
+        }
+
+        function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const storedUser = JSON.parse(localStorage.getItem('user'));
+
+            if (storedUser && storedUser.email === email && storedUser.password === password) {
+                alert('Login successful!');
+                showDashboard();
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('navbar').style.display = 'block';
+            document.getElementById('dashboard-container').style.display = 'flex';
+        }
+
+        function toggleProfileMenu() {
+            const profileMenu = document.getElementById('profile-menu');
+            profileMenu.style.display = (profileMenu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function viewProfile() {
+            alert('Username: ' + JSON.parse(localStorage.getItem('user')).email);
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            alert('Logged out');
+            window.location.reload();
+        }
+
+        async function searchLocation() {
+            const location = document.getElementById('location-input').value;
+            const locationData = await getLocationCoordinates(location);
+            if (locationData) {
+                lat = locationData.lat;
+                lon = locationData.lon;
+                updateWeatherAndMap();
+            } else {
+                alert('Location not found!');
+            }
+        }
+
+        async function getLocationCoordinates(location) {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`);
+            const data = await response.json();
+            if (data.length > 0) {
+                return {
+                    lat: data[0].lat,
+                    lon: data[0].lon
+                };
+            } else {
+                return null;
+            }
+        }
+
+        async function updateWeatherAndMap() {
+            const weatherData = await getWeatherData(lat, lon);
+            const airQualityData = await getAirQualityData(lat, lon);
+
+            document.getElementById('weather-info').innerText = `Temperature: ${weatherData.temp}°C, ${weatherData.weather}`;
+            document.getElementById('air-quality-info').innerText = `Air Quality: ${airQualityData.aqi}`;
+
+            map.setView([lat, lon], 13);
+            L.marker([lat, lon]).addTo(map).bindPopup('You are here').openPopup();
+        }
+
+        async function getWeatherData(lat, lon) {
+            const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+            const response = await fetch(weatherUrl);
+            const data = await response.json();
+            return {
+                temp: data.main.temp,
+                weather: data.weather[0].description
+            };
+        }
+
+        async function getAirQualityData(lat, lon) {
+            const airQualityUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+            const response = await fetch(airQualityUrl);
+            const data = await response.json();
+            return {
+                aqi: data.list[0].main.aqi
+            };
+        }
+    </script>
+<script>
+function showHelp(section) {
+    let helpMessage = '';
+    let title = '';
+
+    // Set user-friendly help messages and titles for each section
+    if (section === 'weather') {
+        title = "Weather Forecast Help";
+        helpMessage = "Enter a location to see the weather in that area. You'll get information like the current temperature and weather conditions (e.g., sunny, rainy, etc.).";
+    } else if (section === 'airQuality') {
+        title = "Air Quality Monitoring Help";
+        helpMessage = "Enter a location to check the air quality. This will show you how clean or polluted the air is, using a simple air quality index (AQI).";
+    }
+
+    // Show the help message with a title
+    alert(title + '\n\n' + helpMessage);
+}
+
+</script>
+</body>
+</html>
