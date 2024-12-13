@@ -80,15 +80,23 @@
             background-color: #5a9bd4;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 1s ease-out;
-        }
+.container {
+    background-color: #fff;  /* Container background color for light mode */
+    color: #333;  /* Text color for light mode */
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 800px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode .dark-light-btn {
+    background-color: #333;
+    color: #fff;
+}
+body.dark-mode .container {
+    background-color: #444;  /* Dark mode background for container */
+    color: #fff;  /* Dark mode text color for container */
+}
 
         header {
             text-align: center;
@@ -104,6 +112,9 @@
             text-transform: uppercase;
         }
 
+body.dark-mode h1 {
+    color: #55FFD8;  /* Color for h1 text in dark mode */
+}
         .auth-container {
             display: flex;
             justify-content: center;
@@ -306,17 +317,67 @@ position: relative;
             }
         }
 
+/* Default Light Mode Styles */
+body {
+    background-color: #fff;  /* Light mode background color */
+    color: #333;  /* Text color */
+    transition: background-color 0.3s ease, color 0.3s ease;  /* Smooth transition for background and text color */
+}
+
+/* Dark Mode Toggle Button */
+.dark-light-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+    padding: 15px;
+    font-size: 20px;
+    background-color: #;  /* Light mode background color */
+    color: #333;  /* Text color */
+    border: none;
+    border-radius: 50%;  /* Circular button */
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;  /* Smooth transition */
+}
+
+/* Dark Mode Button Hover Effect */
+.dark-light-btn:hover {
+    transform: scale(1.1);  /* Slightly enlarges the button */
+    background-color: rgba(0, 0, 0, 0.1);  /* Subtle background change */
+}
+
+/* Dark Mode Button Active State */
+.dark-light-btn:active {
+    transform: scale(0.9);  /* Slightly shrinks the button when clicked */
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #333;  /* Dark mode background color */
+    color: #fff;  /* Dark mode text color */
+}
+
+/* Dark Mode Button Styles */
+body.dark-mode .dark-light-btn {
+    background-color: #333;
+    color: #fff;
+}
+
+
     </style>
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav id="navbar">
+<nav id="navbar">
         <ul>
             <li><a href="#weather">Weather</a></li>
             <li><a href="#air-quality">Air Quality</a></li>
             <li><a href="#map">Map</a></li>
             <li><a href="#" onclick="toggleProfileMenu()">Profile</a></li>
         </ul>
+        <div class="switch-container">
+            <button class="dark-light-btn" onclick="toggleDarkMode()">🌙</button>
+        </div>
     </nav>
 
     <!-- Profile/Logout Menu -->
@@ -532,6 +593,18 @@ function showHelp(section) {
     alert(title + '\n\n' + helpMessage);
 }
 
+</script>
+<script>
+function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            body.classList.toggle('light-mode');
+        }
+
+        function toggleProfileMenu() {
+            const menu = document.getElementById("profile-menu");
+            menu.style.display = (menu.style.display === "block") ? "none" : "block";
+        }
 </script>
 </body>
 </html>
